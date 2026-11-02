@@ -14,7 +14,7 @@ interface Stats {
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string; department?: string }> }) {
-  const { supabase } = await requireSession(["admin", "management"]);
+  const { supabase } = await requireSession(["admin"]);
   const sp = await searchParams;
   const date = (v?: string) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
   const dept = sp.department && /^[0-9a-f-]{36}$/i.test(sp.department) ? sp.department : null;

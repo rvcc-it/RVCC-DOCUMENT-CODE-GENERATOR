@@ -175,7 +175,7 @@ $$ select coalesce(doc_code_gen_current_role() = 'admin', false) $$;
 
 create or replace function doc_code_gen_can_view_all() returns boolean
 language sql stable security definer set search_path = public as
-$$ select coalesce(doc_code_gen_current_role() in ('admin','management'), false) $$;
+$ select coalesce(doc_code_gen_current_role() = 'admin', false) $;
 
 -- Builds the visible code from the configured template and its parts.
 create or replace function doc_code_gen_build_code(
@@ -517,11 +517,9 @@ insert into doc_code_gen_document_categories (category_name, category_code) valu
 on conflict do nothing;
 
 -- =====================================================================
--- USERS (first user created becomes admin regardless of role argument)
--- CHANGE THESE PASSWORDS after first login (Settings > Users > reset access).
+-- ADMIN USER (other users are added by the admin in Settings > Users)
+-- CHANGE THIS PASSWORD after first login (Settings > Users > reset access).
 -- =====================================================================
 select doc_code_gen_create_user('it.support@rvce.com.sa', 'ChangeMe-Admin-2026', 'IT Support', 'admin', 'EMP-000', 'IT');
-select doc_code_gen_create_user('manager@rvce.com.sa',    'ChangeMe-Mgr-2026',   'Site Manager', 'management', 'EMP-001', 'PR');
-select doc_code_gen_create_user('employee@rvce.com.sa',   'ChangeMe-Emp-2026',   'Sample Employee', 'employee', 'EMP-002', 'O');
 
 select email, role, status from doc_code_gen_users order by created_at;

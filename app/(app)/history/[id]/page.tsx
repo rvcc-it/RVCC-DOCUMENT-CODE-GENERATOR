@@ -30,6 +30,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
   const { data } = await supabase.from("doc_code_gen_generated_documents").select(SELECT).eq("id", id).maybeSingle();
   if (!data) notFound();
   const d = data as DocumentRow;
+  if (profile.role !== "admin" && d.applicant_id !== profile.id) notFound(); // RLS enforces this too
   const settings = await getCompanySettings();
   const rootId = d.parent_document_id ?? d.id;
 

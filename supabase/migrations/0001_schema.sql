@@ -164,7 +164,7 @@ $$ select coalesce(doc_code_gen_current_role() = 'admin', false) $$;
 
 create or replace function doc_code_gen_can_view_all() returns boolean
 language sql stable security definer set search_path = public as
-$$ select coalesce(doc_code_gen_current_role() in ('admin','management'), false) $$;
+$ select coalesce(doc_code_gen_current_role() = 'admin', false) $;
 
 -- Builds the visible code from the configured template and its parts.
 create or replace function doc_code_gen_build_code(

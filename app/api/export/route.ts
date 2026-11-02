@@ -15,8 +15,11 @@ export async function GET(req: NextRequest) {
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
   const sp = Object.fromEntries(req.nextUrl.searchParams);
+  const owner = session.profile.role === "admin" ? undefined : session.profile.id;
   // RLS limits employees to their own rows regardless of filters.
-  const { data, error } = await applyFilters(session.supabase.from("doc_code_gen_generated_documents").select(SELECT), parseFilters(sp)).limit(10000);
+  let base = session.supabase.from("doc_code_gen_generated_documents").select(SELECT);
+  if (owner) base = base.eq("applicant_id", owner);
+  const { data, error } = await applyFilters(base, parseFilters(sp)).limit(10000);
   if (error) return new NextResponse(error.message, { status: 500 });
 
   const head = ["Document Code", "Title", "Applicant", "Employee ID", "Department", "Category", "Recipient", "Organization",

@@ -44,6 +44,9 @@ export function applyFilters(query: any, f: HistoryFilters) {
   return query.order(sort, { ascending: f.dir === "asc" });
 }
 
-export function buildQuery(supabase: SupabaseClient, f: HistoryFilters) {
-  return applyFilters(supabase.from("doc_code_gen_generated_documents").select(SELECT, { count: "exact" }), f);
+/** ownerId: restrict to one user's records (everyone except admins). RLS enforces the same rule in the database. */
+export function buildQuery(supabase: SupabaseClient, f: HistoryFilters, ownerId?: string) {
+  let q = supabase.from("doc_code_gen_generated_documents").select(SELECT, { count: "exact" });
+  if (ownerId) q = q.eq("applicant_id", ownerId);
+  return applyFilters(q, f);
 }

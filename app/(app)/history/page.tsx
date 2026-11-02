@@ -18,13 +18,13 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const f = parseFilters(sp);
   const page = f.page ?? 1;
-  const seesAll = profile.role !== "employee";
+  const seesAll = profile.role === "admin";
 
   const [settings, depts, cats, res] = await Promise.all([
     getCompanySettings(),
     supabase.from("doc_code_gen_departments").select("id,department_name").order("department_name"),
     supabase.from("doc_code_gen_document_categories").select("id,category_name").order("category_name"),
-    buildQuery(supabase, f).range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
+    buildQuery(supabase, f, seesAll ? undefined : profile.id).range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
   ]);
   const rows = (res.data ?? []) as DocumentRow[];
   const total = res.count ?? 0;
@@ -59,9 +59,10 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
     <div className="mx-auto max-w-7xl space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-800">Document History</h1>
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary">Records</p>
+          <h1 className="text-3xl font-extrabold text-brand-900">Document history</h1>
           <p className="text-sm text-muted-foreground">
-            {seesAll ? "All generated document codes." : "Document codes you have generated."} {total} record{total === 1 ? "" : "s"}.
+            {seesAll ? "Every generated document code (administrator view)." : "Document codes you have generated."} {total} record{total === 1 ? "" : "s"}.
           </p>
         </div>
         <a href={`/api/export?${qs({ page: undefined })}`}>
