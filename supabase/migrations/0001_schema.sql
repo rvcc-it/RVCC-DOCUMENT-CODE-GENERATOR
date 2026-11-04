@@ -86,12 +86,10 @@ create table doc_code_gen_document_sequences (
   id uuid primary key default gen_random_uuid(),
   company_code text not null,
   year smallint not null,                -- 0 when sequence_reset = 'never'
-  department_id uuid not null references doc_code_gen_departments(id),
-  category_id uuid not null references doc_code_gen_document_categories(id),
   last_sequence integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (company_code, year, department_id, category_id)
+  unique (company_code, year)
 );
 create trigger document_sequences_updated before update on doc_code_gen_document_sequences
   for each row execute function doc_code_gen_set_updated_at();
@@ -221,7 +219,6 @@ begin
   if v_uid is null then raise exception 'Not authenticated' using errcode = '28000'; end if;
   select * into v_profile from doc_code_gen_users where id = v_uid and status = 'active';
   if not found then raise exception 'Account is inactive or has no profile' using errcode = '42501'; end if;
-  if coalesce(trim(p_document_title), '') = '' then raise exception 'Document title is required'; end if;
   if p_recipient_email is not null and p_recipient_email <> ''
      and p_recipient_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
     raise exception 'Recipient email is invalid';
@@ -257,9 +254,9 @@ begin
     v_rev := s.default_revision;
 
     -- row-level lock via UPSERT: concurrent callers queue on this row
-    insert into doc_code_gen_document_sequences (company_code, year, department_id, category_id, last_sequence)
-      values (s.company_code, v_seq_year, v_dept.id, v_cat.id, 1)
-    on conflict (company_code, year, department_id, category_id)
+    insert into doc_code_gen_document_sequences (company_code, year, last_sequence)
+      values (s.company_code, v_seq_year, 1)
+    on conflict (company_code, year)
       do update set last_sequence = doc_code_gen_document_sequences.last_sequence + 1
     returning last_sequence into v_seq;
   end if;
@@ -275,7 +272,7 @@ begin
   ) values (
     v_code, s.company_code, v_year, v_seq, v_rev, case when p_is_revision then v_root.id end,
     v_uid, coalesce(nullif(trim(p_applicant_name), ''), v_profile.full_name), v_profile.employee_id,
-    v_dept.id, v_cat.id, trim(p_document_title), nullif(trim(p_document_description), ''),
+    v_dept.id, v_cat.id, coalesce(trim(p_document_title), ''), nullif(trim(p_document_description), ''),
     nullif(trim(p_recipient_name), ''), nullif(trim(p_recipient_organization), ''),
     nullif(trim(p_recipient_email), ''), nullif(trim(p_remarks), '')
   ) returning * into v_doc;

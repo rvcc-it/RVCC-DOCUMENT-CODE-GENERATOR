@@ -108,13 +108,9 @@ export function GeneratorForm({ settings, profile, departments, categories, orig
       <form ref={formRef} onSubmit={submit} className="space-y-6" noValidate>
         <Card>
           <SectionTitle n={1} icon={User} title="User information" hint="Filled in from your profile." />
-          <CardContent className="grid gap-5 sm:grid-cols-2">
-            <Field label="Applicant's Full Name" required error={errors.applicant_name} className="sm:col-span-2">
+          <CardContent>
+            <Field label="Applicant's Full Name" required error={errors.applicant_name}>
               <Input name="applicant_name" defaultValue={profile.name} />
-            </Field>
-            <Field label="Employee ID"><Input value={profile.employeeId} readOnly disabled placeholder="Not assigned" /></Field>
-            <Field label="Your Department">
-              <Input value={departments.find((d) => d.id === profile.departmentId)?.department_name ?? "Not assigned"} readOnly disabled />
             </Field>
           </CardContent>
         </Card>
@@ -143,7 +139,7 @@ export function GeneratorForm({ settings, profile, departments, categories, orig
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.category_name} ({c.category_code})</option>)}
               </Select>
             </Field>
-            <Field label="Document Title / Subject" required error={errors.document_title} className="sm:col-span-2">
+            <Field label="Document Title / Subject" error={errors.document_title} className="sm:col-span-2">
               <Input name="document_title" maxLength={250} />
             </Field>
             <Field label="Document Description" className="sm:col-span-2"><Textarea name="document_description" /></Field>
@@ -160,7 +156,7 @@ export function GeneratorForm({ settings, profile, departments, categories, orig
                     hint={originals.length ? "Department and category are taken from the original. The revision number goes up by one." : "No existing documents yet."}>
                     <Select value={parentId} onChange={(e) => setParentId(e.target.value)}>
                       <option value="">Select existing document…</option>
-                      {originals.map((o) => <option key={o.id} value={o.id}>{o.document_code} — {o.document_title}</option>)}
+                      {originals.map((o) => <option key={o.id} value={o.id}>{o.document_code}{o.document_title ? ` — ${o.document_title}` : ""}</option>)}
                     </Select>
                   </Field>
                   <Field label="Revision notes"><Textarea name="revision_notes" /></Field>
@@ -203,7 +199,7 @@ export function GeneratorForm({ settings, profile, departments, categories, orig
                 <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-6 py-3.5 transition hover:bg-blue-50/50">
                   <div className="min-w-0">
                     <Link href={`/history/${r.id}`} className="font-mono text-sm font-bold text-primary hover:underline">{r.document_code}</Link>
-                    <p className="truncate text-sm text-muted-foreground">{r.document_title} · {formatDateTime(r.generated_at)}</p>
+                    <p className="truncate text-sm text-muted-foreground">{r.document_title ? `${r.document_title} · ` : ""}{formatDateTime(r.generated_at)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={r.status} />

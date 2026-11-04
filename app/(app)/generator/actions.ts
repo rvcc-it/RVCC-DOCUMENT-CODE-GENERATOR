@@ -15,7 +15,7 @@ const schema = z
     recipient_email: z.union([z.literal(""), z.string().trim().email("Enter a valid email")]).optional().default(""),
     department_id: z.string().optional().default(""),
     category_id: z.string().optional().default(""),
-    document_title: z.string().trim().min(1, "Document title is required").max(250),
+    document_title: z.string().trim().max(250),
     document_description: z.string().trim().max(2000).optional().default(""),
     remarks: z.string().trim().max(2000).optional().default(""),
     is_revision: z.boolean().default(false),
