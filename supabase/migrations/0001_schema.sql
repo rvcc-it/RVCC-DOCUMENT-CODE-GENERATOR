@@ -384,7 +384,7 @@ create or replace function doc_code_gen_create_user(
 ) returns uuid language plpgsql security definer set search_path = public, extensions as $$
 declare v_id uuid; v_role doc_code_gen_user_role := p_role;
 begin
-  if length(p_password) < 10 then raise exception 'Password must be at least 10 characters'; end if;
+  if length(p_password) < 5 then raise exception 'Password must be at least 5 characters'; end if;
   if not exists (select 1 from doc_code_gen_users) then v_role := 'admin'; end if;
   insert into doc_code_gen_users (full_name, email, role, employee_id, department_id)
   values (p_full_name, lower(trim(p_email)), v_role, nullif(p_employee_id, ''),

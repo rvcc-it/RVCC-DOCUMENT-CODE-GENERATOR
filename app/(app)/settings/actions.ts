@@ -100,7 +100,7 @@ export async function setMasterStatus(table: "doc_code_gen_departments" | "doc_c
 }
 
 // ---------- users (own table + bcrypt credentials; credentials need the server-only service role) ----------
-const PASSWORD = z.string().min(10, "Password must be at least 10 characters").max(200);
+const PASSWORD = z.string().min(5, "Password must be at least 5 characters").max(200);
 const userBase = {
   full_name: z.string().trim().min(1).max(150),
   employee_id: z.string().trim().max(40).optional().default(""),

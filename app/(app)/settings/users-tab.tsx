@@ -65,7 +65,7 @@ export function UsersTab({ users, departments, currentUserId }: { users: Profile
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Full name" required className="sm:col-span-2"><Input value={form.full_name} onChange={set("full_name")} /></Field>
               <Field label="Email" required className="sm:col-span-2"><Input type="email" value={form.email} disabled={!isNew} onChange={set("email")} /></Field>
-              {isNew && <Field label="Temporary password" required hint="Minimum 10 characters" className="sm:col-span-2">
+              {isNew && <Field label="Temporary password" required hint="Minimum 5 characters" className="sm:col-span-2">
                 <Input type="password" autoComplete="new-password" value={form.password} onChange={set("password")} /></Field>}
               <Field label="Employee ID"><Input value={form.employee_id} onChange={set("employee_id")} /></Field>
               <Field label="Department">
@@ -98,7 +98,7 @@ export function UsersTab({ users, departments, currentUserId }: { users: Profile
       <Dialog open={!!reset} onOpenChange={(o) => !o && setReset(null)}>
         <DialogContent title={`Reset access for ${reset?.user.full_name}`} description="Sets a new password and signs the user out of all sessions." className="max-w-md">
           <div className="grid gap-4">
-            <Field label="New temporary password" required hint="Minimum 10 characters">
+            <Field label="New temporary password" required hint="Minimum 5 characters">
               <Input type="password" autoComplete="new-password" value={reset?.password ?? ""} onChange={(e) => setReset({ ...reset!, password: e.target.value })} />
             </Field>
             <div className="flex justify-end gap-2">
